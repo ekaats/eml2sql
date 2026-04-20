@@ -779,6 +779,33 @@ Regio,RegioCode,OuderRegioCode
 
                             //              cout<<"  uncountedvotes "<<s2.begin()->value()<<", reason: "<<reason<<endl;
             }
+            else if(lname=="kr:ReportingUnitInvestigations") {
+
+              for(const auto& s3 : s2) {
+                string invname = s3.name();
+                // Extra metadata, used in GR2026
+                // <kr:ReportingUnitInvestigations>
+                //    <kr:Investigation ReasonCode="toegelaten kiezers opnieuw vastgesteld">false</kr:Investigation>
+                //    <kr:Investigation ReasonCode="onderzocht vanwege andere reden">false</kr:Investigation>
+                //    <kr:Investigation ReasonCode="stembiljetten deels herteld">false</kr:Investigation>
+                //  </kr:ReportingUnitInvestigations>
+
+
+                if(invname== "kr:Investigation") {
+                  string reason = s3.attribute("ReasonCode").value();
+                            sqw.addValue({{"electionId", electionId},{"kieskring", kieskringName}, {"kieskringHSB", kieskringHSB}, {"kieskringId", kieskringId},
+                            {"formid", formid}, {"gemeente", gemeente},
+                            {"gemeenteId", gemeenteId},
+                            {"stembureau", stembureau},
+                            {"stembureauId", stembureauId},
+                            {"postcode", postcode},{"category", lname},{"kind", reason}, {"value", atoi(s3.begin()->value())}}, "rumeta");
+                }
+                else
+                  cout<<"Unknown 510 field in ReportingUnitInvestigations: '"<<invname<<"'"<<endl;
+
+              }
+
+            }
             else
               cout<<"Unknown 510 field in ReportingUnit: '"<<lname<<"'"<<endl;
 
