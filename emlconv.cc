@@ -6,6 +6,7 @@
 #include <set>
 #include <filesystem>
 #include "sqlwriter.hh"
+#include "string.h"
 using namespace std;
 
 /* Every election has one or more KIESKRINGs. 
@@ -790,15 +791,25 @@ Regio,RegioCode,OuderRegioCode
                 //    <kr:Investigation ReasonCode="stembiljetten deels herteld">false</kr:Investigation>
                 //  </kr:ReportingUnitInvestigations>
 
-
                 if(invname== "kr:Investigation") {
+
                   string reason = s3.attribute("ReasonCode").value();
-                            sqw.addValue({{"electionId", electionId},{"kieskring", kieskringName}, {"kieskringHSB", kieskringHSB}, {"kieskringId", kieskringId},
-                            {"formid", formid}, {"gemeente", gemeente},
-                            {"gemeenteId", gemeenteId},
-                            {"stembureau", stembureau},
-                            {"stembureauId", stembureauId},
-                            {"postcode", postcode},{"category", lname},{"kind", reason}, {"value", atoi(s3.begin()->value())}}, "rumeta");
+                  string val = "";
+                  if (strncmp(s3.begin()->value(), "true", 4) == 0) {
+                    val = "1";
+                  }
+                  else if (strncmp(s3.begin()->value(), "false", 5) == 0) {
+                    val = "0";
+                  }
+
+                  if (val[0] != '\0') {
+                    sqw.addValue({{"electionId", electionId},{"kieskring", kieskringName}, {"kieskringHSB", kieskringHSB}, {"kieskringId", kieskringId},
+                    {"formid", formid}, {"gemeente", gemeente},
+                    {"gemeenteId", gemeenteId},
+                    {"stembureau", stembureau},
+                    {"stembureauId", stembureauId},
+                    {"postcode", postcode},{"category", lname},{"kind", reason}, {"value", val}}, "rumeta");
+                  }
                 }
                 else
                   cout<<"Unknown 510 field in ReportingUnitInvestigations: '"<<invname<<"'"<<endl;
